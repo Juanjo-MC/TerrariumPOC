@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, height=device-height, interactive-widget=overlays-content, initial-scale=1" />
+		<title>Visor 3D - Terrarium</title>
+		<script src="https://cesium.com/downloads/cesiumjs/releases/1.132/Build/Cesium/Cesium.js"></script>
+		<link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.132/Build/Cesium/Widgets/widgets.css">
+		<link rel="stylesheet" href="./css/viewer-container.css">
+	</head>
+	<body>
+		<div id="viewerContainer" class="viewer-container"></div>
+		<script type="module">
+			// https://github.com/CesiumGS/cesium/issues/13035
+			// https://sandcastle.cesium.com/#c=jVYLTyM3EP4rI1SdNsfGSXgcLSS0wFE4qQgEtFV1OfWc3cmuD6+9sr0kKcp/79i7eUF6ahTC7vibp2c+WxSlNg7eA7dwgVZUBYyNLmC4k4S34c7JUCVaWQfPAidoYAAKJw2W/RFk0QJ9oZXjQqEZ7rRIb6hqHWYTVMie0TiRcHk55VmGhjuhFZnbO3mFy6QeIUuxdPkjWneWkUnrHtEYeiAFZyoM1jsdaNMHmqX7q3NwGi4q63RxjSLLXcHLZvHO6GeRUvxeo+2166yckPgg/kEfyOGHEyCbjzkGsYWJkBJGCKmeqE5Vti0vSomp9+JyYcGSIoOHgktJlkkw5tZR9o3ty5u7x7/+vr78dHX9+NAU7lepuftwcEZBzaKl8/fLOFohhMuidDPgHgRjbWCtlu5VPhv78f3co5ehAkoqdfnx0mHsZXnQeCWkF6GyhyTHAo/XvfyJoxs0CXfaPK5holYcyrfaDS4nfGahslTLULDaJNiA9z6oHeSIJ0/H1IAzlUA0jWexxGeULRicQggYQIwhCkLow0ELDLrKqM3yhrLdGpjk3BHSQI2vobZuarfYWPbNalWbdma28ELRhG1LueNUVj7hwsEYXZJHX3PnSnvc6aRY6NoElVeKkUGmTdZpNqUdljo/vATnc3qY+p/ZnJUq++pHovbj8/FemH6Cd++CQ2Ydd5WFwYAasdttrYKC0BBTZ3jiQgqi4BnGlJry+08xCkUNyRXo8dgmBlFRWdUztzEJUxgLRUWeEZ6nQb8UU5R2Zb7OekRTt8w6ROQl0SroBTC4Pxe+v5Z48kpl/7RaibzyW906rqZnbxfhXgTpchritWF4Y8BNSbs2wzJ0nnFw6oiB9tKadJZ4N2Uh1IdCa2o+lV0qPvLTO6AxlRZDx9zwJwRbGQSlfR3RlFrWzJTzskRqnUlOBfUMQNNOVjY9pIZPQtrRWlniFab+9GL/XUOwMITQhr1NcT2HtXxzlHIqG4deO2yen2GEUTUeUwMYCiqmdncWksr5fqA+eB1BN/bf71d40+H2LnErwCAUgPYg5P+ROib6Ty/MN9SmqztuLIZ+fOO0aegNrmwoqk1Veh1TvXIT2vH/UezKgidXohYqGyl3T+hff2WPSVSZy0m6u7sxkAvP9/40Wkb/WZCTA9iF7peTt9ir7djeNuz5duzeNuzZduz+l9DfZ4FQulAgVzZUO7AbUXHGzYj2bd3gMvHP4gtZXej+TH/H0O516UOWo+iefNBh2fzuUmqLp/MWPXZZrz7Ffree7F9tcdPiVPiiknzlfr56bPh9Gc4y6wYzJwIgVoaXufeidFuXMXyjo2+h6V1iOEJrG00bbz03/NKcJna+cWNJeEE3FGbR+StOfXCmdBkhLvXkcLw8cLlx9MTVPvNHzEfMiNBs1Oux/Z+6Px7GcHDE9o4Ojw5iz+rE64EbtBFIN6Xa0trBek0UTSW7E5TdvZbSD1S7y44OWyHAnXinb91M4qk38ouo726VkRFjdATR3YRI2HZGVfKEjiXW+pT6nYVKPxXPINLBltsaJJJbSyvjSko/I8Od036H8BtqNFc+vFs6XiWfeUjeO/2tFjLG+h16favltKYj3qxZ/Bc
+			// https://github.com/mapterhorn/mapterhorn?tab=readme-ov-file
+			// https://mapterhorn.com/
+
+			Cesium.Ion.defaultAccessToken = null;
+
+			const viewer = new Cesium.Viewer('viewerContainer', {
+				imageryProvider: false, // This is necessary to prevent the viewer from downloading tiles from Bing
+				imageryProviderViewModels: getImageryProviders(),
+				navigationInstructionsInitiallyVisible: true,
+				animation: false,
+				homeButton: false,
+				geocoder: false,
+				timeline: false,
+				scene3DOnly: true,
+				selectionIndicator: false,
+				requestRenderMode: true,
+			});
+
+			viewer.baseLayerPicker.viewModel.terrainProviderViewModels.removeAll();
+			viewer.scene.globe.maximumScreenSpaceError = 1.5;
+			viewer.scene.globe.depthTestAgainstTerrain = true;
+			viewer.scene.globe.loadingDescendantLimit = 50;
+			viewer.scene.screenSpaceCameraController.minimumCollisionTerrainHeight = 5000;
+			viewer.scene.screenSpaceCameraController.inertiaSpin = 0;
+			viewer.scene.screenSpaceCameraController.inertiaTranslate = 0;
+			viewer.scene.screenSpaceCameraController.inertiaZoom = 0;
+			viewer.camera.percentageChanged = 0.05;
+
+			viewer.terrainProvider = new Cesium.CustomHeightmapTerrainProvider({
+				width: 256,
+				height: 256,
+				tilingScheme: new Cesium.WebMercatorTilingScheme(),
+				callback: getMapterhornTerrariumTile,
+			});
+
+			viewer.camera.setView({
+				destination: Cesium.Cartesian3.fromDegrees(-4.832612, 43.274149, 2000),
+				orientation: new Cesium.HeadingPitchRoll(Math.PI, 0, 0),
+			})
+
+			function getImageryProviders(){
+				const imageryViewModels = [];
+
+				// PNOA
+				imageryViewModels.push(new Cesium.ProviderViewModel({
+					name: 'PNOA',
+					tooltip: 'Plan Nacional de Ortofotografía Aérea (máxima actualidad)',
+					iconUrl: 'https://tms-pnoa-ma.idee.es/1.0.0/pnoa-ma/15/15945/20765.jpeg',
+
+					creationFunction: function(){
+						return new Cesium.UrlTemplateImageryProvider({
+							url: 'https://tms-pnoa-ma.idee.es/1.0.0/pnoa-ma/{z}/{x}/{reverseY}.jpeg',
+							minimumLevel: 1,
+							maximumLevel: 19,
+							hasAlphaChannel: false,
+						});
+					}
+				}));
+
+				// Mapa topográfico IGN
+				imageryViewModels.push(new Cesium.ProviderViewModel({
+					name: 'MTN',
+					tooltip: 'Mapa Topográfico Nacional',
+					iconUrl: 'https://tms-mapa-raster.ign.es/1.0.0/mapa-raster/15/15945/20765.jpeg',
+
+					creationFunction: function(){
+						return new Cesium.UrlTemplateImageryProvider({
+							url: 'https://tms-mapa-raster.ign.es/1.0.0/mapa-raster/{z}/{x}/{reverseY}.jpeg',
+							minimumLevel: 5,
+							maximumLevel: 17,
+							hasAlphaChannel: false,
+						});
+					}
+				}));
+
+				// Mapa base IGN
+				imageryViewModels.push(new Cesium.ProviderViewModel({
+					name: 'Mapa base',
+					tooltip: 'Mapa base',
+					iconUrl: 'https://tms-ign-base.idee.es/1.0.0/IGNBaseTodo/15/15945/20765.jpeg',
+
+					creationFunction: function(){
+						return new Cesium.UrlTemplateImageryProvider({
+							url: 'https://tms-ign-base.idee.es/1.0.0/IGNBaseTodo/{z}/{x}/{reverseY}.jpeg',
+							minimumLevel: 5,
+							maximumLevel: 17,
+							hasAlphaChannel: false,
+						});
+					}
+				}));
+
+				// Mapa LIDAR IGN
+				imageryViewModels.push(new Cesium.ProviderViewModel({
+					name: 'Mapa LIDAR',
+					tooltip: 'Mapa LIDAR',
+					iconUrl: 'https://wmts-mapa-lidar.idee.es/lidar?Layer=EL.GridCoverageDSM&Style=default&TileMatrixSet=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=15&TileCol=15945&TileRow=12002',
+
+					creationFunction: function(){
+						return new Cesium.UrlTemplateImageryProvider({
+							url: 'https://wmts-mapa-lidar.idee.es/lidar?Layer=EL.GridCoverageDSM&Style=default&TileMatrixSet=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix={z}&TileCol={x}&TileRow={y}',
+							minimumLevel: 5,
+							maximumLevel: 17,
+							hasAlphaChannel: false,
+						});
+					}
+				}));
+
+				return imageryViewModels;
+			}
+
+			async function getMapterhornTerrariumTile(x, y, z){
+				const tileSize = 256;
+				const EMPTY_HEIGHTS = new Float64Array(tileSize * tileSize);
+
+				if (z < 5 || z > 15){
+					return EMPTY_HEIGHTS;
+				}
+
+				try{
+					const data = await fetch(`https://tiles.mapterhorn.com/${z}/${x}/${y}.webp`);
+
+					if (data.ok && data.status === 200){
+						const blob = await data.blob();
+						const terrainRGB = await getTileData(blob, tileSize, 0);
+						const heightMap = new Float64Array(tileSize * tileSize);
+
+						for (let i = 0; i < terrainRGB.length; i += 4) {
+							const R = terrainRGB[i];
+							const G = terrainRGB[i + 1];
+							const B = terrainRGB[i + 2];
+							heightMap[i / 4] = decodeTerrariumHeightValue(R, G, B);
+						}
+
+						return heightMap;
+					}
+
+					return EMPTY_HEIGHTS;
+				}
+				catch (err){
+					console.error(err);
+					return EMPTY_HEIGHTS;
+				}
+			}
+
+			async function getIGNTerrainRGBTile(x, y, z){
+				const tileSize = 256;
+				const EMPTY_HEIGHTS = new Float64Array(tileSize * tileSize);
+
+				if (z < 5 || z > 15){
+					return EMPTY_HEIGHTS;
+				}
+
+				try{
+					const data = await fetch(`https://xyz-mdt.idee.es/1.0.0/raster-dem/${z}/${x}/${y}.png`);
+
+					if (data.ok && data.status === 200){
+						const blob = await data.blob();
+						const terrainRGB = await getTileData(blob, tileSize, 1);
+						const heightMap = new Float64Array(tileSize * tileSize);
+
+						for (let i = 0; i < terrainRGB.length; i += 4) {
+							const R = terrainRGB[i];
+							const G = terrainRGB[i + 1];
+							const B = terrainRGB[i + 2];
+							heightMap[i / 4] = decodeTerrainRGBHeightValue(R, G, B);
+						}
+
+						return heightMap;
+					}
+
+					return EMPTY_HEIGHTS;
+				}
+				catch (err){
+					console.error(err);
+					return EMPTY_HEIGHTS;
+				}
+			}
+			
+			function decodeTerrariumHeightValue(R, G, B){
+				return (R * 256 + G + B / 256) - 32768;
+			}
+			
+			function decodeTerrainRGBHeightValue(R, G, B){
+				return -10000 + ((R * 256 * 256 + G * 256 + B) * 0.1);
+			}
+
+			async function getTileData(blob, tileSize, pixelBufferSize){
+				const imageBitmap = await createImageBitmap(blob);
+				const canvas = new OffscreenCanvas(tileSize, tileSize);
+				const ctx = canvas.getContext("2d");
+				ctx.imageSmoothingEnabled = false; // Make sure no interpolation happens when downsizing
+				ctx.drawImage(imageBitmap, 0 + pixelBufferSize, 0 + pixelBufferSize, imageBitmap.width - 2 * pixelBufferSize, imageBitmap.height - 2 * pixelBufferSize, 0, 0, tileSize, tileSize);
+				return ctx.getImageData(0, 0, tileSize, tileSize).data;
+			}
+
+		</script>
+	</body>
+</html>
