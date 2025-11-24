@@ -139,11 +139,11 @@
 						const terrainRGB = await getTileData(blob, tileSize, 0);
 						const heightMap = new Float64Array(tileSize * tileSize);
 
-						for (let i = 0; i < terrainRGB.length; i += 4) {
-							const R = terrainRGB[i];
-							const G = terrainRGB[i + 1];
-							const B = terrainRGB[i + 2];
-							heightMap[i / 4] = decodeTerrariumHeightValue(R, G, B);
+						for (let i = 0; i < heightMap.length; i++) {
+							const R = terrainRGB[i * 4];
+							const G = terrainRGB[i * 4 + 1];
+							const B = terrainRGB[i * 4 + 2];
+							heightMap[i] = decodeTerrariumHeightValue(R, G, B);
 						}
 
 						return heightMap;
@@ -173,11 +173,11 @@
 						const terrainRGB = await getTileData(blob, tileSize, 1);
 						const heightMap = new Float64Array(tileSize * tileSize);
 
-						for (let i = 0; i < terrainRGB.length; i += 4) {
-							const R = terrainRGB[i];
-							const G = terrainRGB[i + 1];
-							const B = terrainRGB[i + 2];
-							heightMap[i / 4] = decodeTerrainRGBHeightValue(R, G, B);
+						for (let i = 0; i < heightMap.length; i++) {
+							const R = terrainRGB[i * 4];
+							const G = terrainRGB[i * 4 + 1];
+							const B = terrainRGB[i * 4 + 2];
+							heightMap[i] = decodeTerrainRGBHeightValue(R, G, B);
 						}
 
 						return heightMap;
