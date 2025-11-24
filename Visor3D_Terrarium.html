@@ -125,10 +125,9 @@
 
 			async function getMapterhornTerrariumTile(x, y, z){
 				const tileSize = 256;
-				const EMPTY_HEIGHTS = new Float64Array(tileSize * tileSize);
 
 				if (z < 5 || z > 15){
-					return EMPTY_HEIGHTS;
+					return new Float64Array(tileSize * tileSize);
 				}
 
 				try{
@@ -149,20 +148,19 @@
 						return heightMap;
 					}
 
-					return EMPTY_HEIGHTS;
+					return new Float64Array(tileSize * tileSize);
 				}
 				catch (err){
 					console.error(err);
-					return EMPTY_HEIGHTS;
+					return new Float64Array(tileSize * tileSize);
 				}
 			}
 
 			async function getIGNTerrainRGBTile(x, y, z){
 				const tileSize = 256;
-				const EMPTY_HEIGHTS = new Float64Array(tileSize * tileSize);
 
 				if (z < 5 || z > 15){
-					return EMPTY_HEIGHTS;
+					return new Float64Array(tileSize * tileSize);
 				}
 
 				try{
@@ -183,11 +181,11 @@
 						return heightMap;
 					}
 
-					return EMPTY_HEIGHTS;
+					return new Float64Array(tileSize * tileSize);
 				}
 				catch (err){
 					console.error(err);
-					return EMPTY_HEIGHTS;
+					return new Float64Array(tileSize * tileSize);
 				}
 			}
 			
