@@ -126,10 +126,6 @@
 			async function getMapterhornTerrariumTile(x, y, z){
 				const tileSize = 256;
 
-				if (z < 5 || z > 15){
-					return new Float64Array(tileSize * tileSize);
-				}
-
 				try{
 					const data = await fetch(`https://tiles.mapterhorn.com/${z}/${x}/${y}.webp`);
 
@@ -147,12 +143,9 @@
 
 						return heightMap;
 					}
-
-					return new Float64Array(tileSize * tileSize);
 				}
 				catch (err){
-					console.error(err);
-					return new Float64Array(tileSize * tileSize);
+					return promise.reject(err);
 				}
 			}
 
@@ -200,7 +193,7 @@
 			async function getTileData(blob, tileSize, pixelBufferSize){
 				const imageBitmap = await createImageBitmap(blob);
 				const canvas = new OffscreenCanvas(tileSize, tileSize);
-				const ctx = canvas.getContext("2d");
+				const ctx = canvas.getContext('2d');
 				ctx.imageSmoothingEnabled = false; // Make sure no interpolation happens when downsizing
 				ctx.drawImage(imageBitmap, 0 + pixelBufferSize, 0 + pixelBufferSize, imageBitmap.width - 2 * pixelBufferSize, imageBitmap.height - 2 * pixelBufferSize, 0, 0, tileSize, tileSize);
 				return ctx.getImageData(0, 0, tileSize, tileSize).data;
