@@ -145,16 +145,12 @@
 					}
 				}
 				catch (err){
-					return promise.reject(err);
+					return Promise.reject(err);
 				}
 			}
 
 			async function getIGNTerrainRGBTile(x, y, z){
 				const tileSize = 256;
-
-				if (z < 5 || z > 15){
-					return new Float64Array(tileSize * tileSize);
-				}
 
 				try{
 					const data = await fetch(`https://xyz-mdt.idee.es/1.0.0/raster-dem/${z}/${x}/${y}.png`);
@@ -173,12 +169,9 @@
 
 						return heightMap;
 					}
-
-					return new Float64Array(tileSize * tileSize);
 				}
 				catch (err){
-					console.error(err);
-					return new Float64Array(tileSize * tileSize);
+					return Promise.reject(err);
 				}
 			}
 			
